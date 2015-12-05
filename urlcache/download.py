@@ -5,6 +5,17 @@ folder = os.path.join(os.getenv("HOME"), ".urlcache")
 
 
 def download(url, out=None):
+    if out is None:
+        out = "."
+    filename = download_and_get_filename(url)
+    create_link_(filename, out)
+
+
+def download_and_open(url):
+    return open(download_and_get_filename(url), "rb")
+
+
+def download_and_get_filename(url):
 
     url_hash = url_hash_(url)
 
@@ -20,16 +31,16 @@ def download(url, out=None):
         filename = wget.download(url, out=folder)
         with open(url_hash_filename, "w") as fd:
             fd.write(filename)
-    if out is None:
-        out = "."
+    return filename
 
+
+def create_link_(filename, out):
     if os.path.isdir(out):
         out = out + os.path.basename(filename)
     try:
         os.symlink(filename, out)
     except OSError:
         print("{} exists - cant override".format(out))
-
 
 def url_hash_(url):
     import md5
